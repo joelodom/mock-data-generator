@@ -11,7 +11,7 @@ import random
 #    export OPENAI_API_KEY="sk-..."
 #
 # 3) Adjust these as desired:
-MODEL      = "gpt-3.5-turbo"      # or "gpt-4"
+MODEL      = "gpt-4-turbo"      # or "gpt-4"
 NUM_NOTES  = 32768                 # how many to generate
 KEYWORDS   = ["hypertension", "HTN", "diabetes", "DM", "aspirin", "CT abdomen"]
 LONG_RATE  = 1/50                 # ~1 in 50 should be long
@@ -33,12 +33,11 @@ as I need a diverse range of outputs.
 """.strip()
 
 SYSTEM_PROMPT2 = """
-You are a medical scribe assistant for an unusual kind of doctor who sees lots of kinds of patients.
+You are a medical scribe assistant for doctor who only deals in diagnosis of rare diseases.
 Generate exactly one de-identified outpatient note,
 no more than {max_chars} characters long (including spaces). It should read like realistic
 clinical free text, occasionally with a brief demographic statement, a one-sentence
-history of present illness, a sentence or two of exam/ROS/plan. Include a lot of
-very technical medical terminology.
+history of present illness, a sentence or two of exam/ROS/plan. Include unusual medical terms.
 """.strip()
 
 USER_INSTRUCTION = "Generate one note now."
@@ -49,10 +48,10 @@ def generate_note():
     resp = client.chat.completions.create(
         model=MODEL,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT if random.randint(0, 50) == 0 else SYSTEM_PROMPT2},
+            {"role": "system", "content": SYSTEM_PROMPT if random.randint(0, 10) == 0 else SYSTEM_PROMPT2},
             {"role": "user",   "content": USER_INSTRUCTION},
         ],
-        temperature=1.4,
+        temperature=1.3,
         max_tokens=MAX_CHARS // 2,  # plenty for ~300 chars
         n=1,
     )
@@ -70,6 +69,6 @@ if __name__ == "__main__":
         note = generate_note()
         with open(OUTPUT_FILE, "a") as f:
             f.write(note + "\n\n")
-            time.sleep(0.3)  # simple rate‑limit safeguard
+        time.sleep(0.1)  # simple rate‑limit safeguard
 
     print(f"Generated {NUM_NOTES} notes → {OUTPUT_FILE}")
