@@ -3,6 +3,7 @@ import csv
 import sys
 import random
 import string
+import json
 
 def clean_field(s):
     """Turn any Unicode replacement char into a plain '?'."""
@@ -30,6 +31,17 @@ def read_voter_file(filepath):
             records.append(rec)
 
     return headers, records
+
+NOTES = []
+
+def read_notes_file(filepath):
+    with open(filepath, newline='', encoding='utf-8', errors='replace') as f:
+        for line in f:
+          line = line.strip()
+          if len(line) < 1: continue
+          NOTES.append(line)
+
+read_notes_file('fake_med_notes.txt')  
 
 def fakeCCNumber():
     """
@@ -199,31 +211,27 @@ def main():
         print(f"Error reading {filepath!r}: {e}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Loaded {len(records)} records with {len(headers)} fields each.\n")
-    print("Fields:")
-    for h in headers:
-        print(f"  • {h}")
-    if records:
-        print("\nFirst record preview:")
-        for k, v in records[0].items():
-            print(f"  {k!r}: {v!r}")
+    # print(f"Loaded {len(records)} records with {len(headers)} fields each.\n")
+    # print("Fields:")
+    # for h in headers:
+    #     print(f"  • {h}")
+    # if records:
+    #     print("\nFirst record preview:")
+    #     for k, v in records[0].items():
+    #         print(f"  {k!r}: {v!r}")
     
     for record in records:
-        print(f"{record["first_name"]} {record["last_name"]}")
-        print(f"{record["mail_addr1"]}")
-        print(f"{record["mail_city"]}, {record["mail_state"]} {record["mail_zipcode"]}")
-        print()
+        r = {
+            "name": f"{record["first_name"]} {record["last_name"]}",
+            "email": fakeEmailAddress(),
+            "cc": fakeCCNumber(),
+            "ssn": fakeSSN(),
+            "plate": fakeLicensePlate(),
+            "procedure_code": fakeProcedureCode(),
+            "notes": random.choice(NOTES)
+        }
 
-        print(f"{fakeCCNumber()}")
-        print(f"{fakeSSN()}")
-        print(f"{fakeLicensePlate()}")
-        print(f"{fakeProcedureCode()}")
-        print()
-
-        print(f"{fakeEmailAddress()}")
-        print()
-
-        print()
+        print(json.dumps(r))
 
 if __name__ == "__main__":
     main()
