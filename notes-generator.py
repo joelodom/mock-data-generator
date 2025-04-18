@@ -12,7 +12,7 @@ import random
 #
 # 3) Adjust these as desired:
 MODEL      = "gpt-3.5-turbo"      # or "gpt-4"
-NUM_NOTES  = 64                 # how many to generate
+NUM_NOTES  = 32768                 # how many to generate
 KEYWORDS   = ["hypertension", "HTN", "diabetes", "DM", "aspirin", "CT abdomen"]
 LONG_RATE  = 1/50                 # ~1 in 50 should be long
 MAX_CHARS  = 300                  # cap length
@@ -49,7 +49,7 @@ def generate_note():
     resp = client.chat.completions.create(
         model=MODEL,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT if random.randint(0, 1) == 0 else SYSTEM_PROMPT2},
+            {"role": "system", "content": SYSTEM_PROMPT if random.randint(0, 50) == 0 else SYSTEM_PROMPT2},
             {"role": "user",   "content": USER_INSTRUCTION},
         ],
         temperature=1.4,
@@ -58,8 +58,8 @@ def generate_note():
     )
     text = resp.choices[0].message.content.strip()
     # enforce length cap client‑side
-    if len(text) > MAX_CHARS:
-        text = text[:MAX_CHARS].rsplit(" ", 1)[0]
+    #if len(text) > MAX_CHARS:
+    #    text = text[:MAX_CHARS].rsplit(" ", 1)[0]
     return text
 
 
